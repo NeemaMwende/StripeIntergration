@@ -1,33 +1,42 @@
-from django.shortcuts import render
-from django.views.generic.base import TemplateView
 from django.conf import settings
+from django.shortcuts import render, redirect
 import stripe
 
 # Stripe configuration
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-class HomePageView(TemplateView):
-    template_name = 'home.html'
+# Checkout session creation view
+def create_checkout_session(request):
+    YOUR_DOMAIN = 'http://localhost:8000'  # Replace with your domain
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Passing Stripe's publishable key to the template
-        context['key'] = settings.STRIPE_PUBLISHABLE_KEY
-        return context
+    try:
+        # Create a new Stripe Checkout Session
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': 'Cool Product',
+                        },
+                        'unit_amount': 2000,  # 2000 cents = $20
+                    },
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=YOUR_DOMAIN + '/success/',
+            cancel_url=YOUR_DOMAIN + '/cancel/',
+        )
+        return redirect(checkout_session.url)
+    except Exception as e:
+        return render(request, 'error.html', {'error': str(e)})
 
-# Handling the charge
-def charge(request):
-    if request.method == 'POST':
-        try:
-            # Create the charge using the Stripe API
-            charge = stripe.Charge.create(
-                amount=500,  # This is in cents, so it represents $5.00
-                currency='usd',
-                description='Payment Gateway',
-                source=request.POST['stripeToken']  # Stripe token from form
-            )
-        except stripe.error.StripeError as e:
-            # Handle error here if payment fails
-            return render(request, "error.html", {'error': str(e)})
+# Success page view
+def success(request):
+    return render(request, 'success.html')
 
-        return render(request, "charge.html")  # Success page
+# Cancel page view
+def cancel(request):
+    return render(request, 'cancel.html')
