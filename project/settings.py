@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -73,10 +74,11 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),  # Use os.path.join for string-based paths
     }
 }
 
@@ -121,3 +123,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STRIPE_SECRET_KEY = 'sk_test_51Q4kgtE7JEpDvfCUlQ5g9X8JIHCqhoN0Hz7oD5r2G7V7PeCDgVJv8UnO89A5wpITq9w4hahLayk40DodZUhbZCgD00cJYDYJgT'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51Q4kgtE7JEpDvfCUJuSA5RXIibRFFx0VHePxEftQvsNeKLP3sywZEBoByulhKur2bLahV5sWwK0JsBgjrwU8t6Zy00Dh2xIg3E'
